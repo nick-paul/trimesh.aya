@@ -2,7 +2,7 @@
 
 Aya script to load and render obj files
 
-![](bunny.webm)
+![](bunny.gif)
 
 
 

@@ -1,0 +1,23 @@
+require ".mesh" {mesh}
+
+{fname::str : points mesh^, .# -> mesh
+    []:points;
+    []:faces;
+    fname G .lines # { line,
+        line "v " N 0 = {
+            line " "SV; 3.<#.! points.append ;
+        } ?
+        line "f " N 0 = {
+            line " " SV; 3.< #{"/"S.[0].!} faces.append ;
+        } ?
+    } ;
+    "Read $(points E) points" :P
+
+    faces 1 - :faces; .# to 0 index
+
+    .# transpose so each x,y,z is one column
+    .# [[x0 x1 ..]
+    .#  [y0 y1 ..]
+    .#  [z0 z1 ..]]
+    points.T faces mesh!
+} :read_obj;

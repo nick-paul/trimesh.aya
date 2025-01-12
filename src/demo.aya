@@ -1,0 +1,117 @@
+.# 3D Projected Cube
+.#
+.# Implementation of Coding Challenge #112 by The Coding Train
+.# https://thecodingtrain.com/
+
+
+import canvas
+require color {colors}
+import time
+import la
+
+require ".mesh" {mesh}
+require ".io" {read_obj}
+
+{: canvas^ colors^ time^ la^ mesh^ read_obj^,
+    .# Location of object files
+    {:(sys.joinpath)}:join;
+    M0 :(sys.parent) :(sys.parent) "data" join :(sys.abspath) :data_dir;
+
+    .# suzanne, teapot, bunny
+    "bunny":model;
+
+    {
+        ("suzanne" model =) {
+            .# Suzanne
+            data_dir "suzanne.obj" join read_obj :obj;
+            100 obj.rescale :obj;
+            0   :point_size;
+            0.8 :point_alpha;
+            1   :draw_wireframe;
+        } ("teapot" model =) {
+            data_dir "teapot.obj" join read_obj :obj;
+            50 obj.rescale :obj;
+            1   :point_size;
+            0.8 :point_alpha;
+            0   :draw_wireframe;
+        } ("bunny" model = ) {
+            data_dir "stanford-bunny.obj" join read_obj :obj;
+            1500 obj.rescale :obj;
+            1   :point_size;
+            0.3 :point_alpha;
+            0   :draw_wireframe;
+        } {
+            "Please use a valid model name" .D
+        }
+    } :?
+
+    .# Flip it upright
+    :1p obj.rotate_z :obj;
+
+    .# Center the obj on the origin
+    obj.points obj.get_center.T - obj.:points;
+
+    .# Create a new canvas
+    :{ "trimesh example: $model":name 0:autoflush 1:scale } canvas.canvas! :c;
+
+    .# Tf mat
+    .# Draw the origin in the middle of the screen rather than the corner
+    [c.width 2/ c.height 2/] .T  :canvas_tf;
+
+
+    .# Rotation
+    0 :theta;
+
+    .# Render at 50 FPS
+    30 time.rate! :limiter;
+
+    .# Draw loop
+    {
+        .#
+        .# UPDATE
+        .#
+
+        theta 0.02 + :theta;
+
+        obj :obj_rotated;
+        theta obj_rotated.rotate_x :obj_rotated;
+        theta obj_rotated.rotate_y :obj_rotated;
+        theta obj_rotated.rotate_z :obj_rotated;
+
+        .# Project the points and apply canvas transform
+        .# (Move the points to the center of the canvas)
+        obj_rotated.project canvas_tf + :canvas_points;
+
+        .#
+        .# DRAW
+        .#
+
+        .# Black Background
+        colors.black c.set_color
+        1     c.set_alpha
+        c.clear
+        0 0 c.width c.height c.fillrect
+
+        .# Draw Points
+        colors.white c.set_color
+        point_alpha c.set_alpha
+
+        point_size 0 > {
+            canvas_points .T point_size c.points
+        } ?
+
+        draw_wireframe {
+
+            .#obj_rotated.faces { {i, canvas_points {iI} O } O } O
+            canvas_points obj_rotated.faces mesh.face_points :# {triangle,
+                triangle .T ~ 0 c.path
+            } ;
+        } ?
+
+        c.show
+        limiter.sleep
+        c.isopen
+    } W
+
+    c.close
+}:__run__;

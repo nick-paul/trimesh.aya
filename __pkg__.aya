@@ -1,0 +1,4 @@
+require ".src/mesh" {mesh}
+require ".src/io" *
+
+require ".src/demo" {__run__}

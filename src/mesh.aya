@@ -1,0 +1,84 @@
+class mesh
+
+    def mesh::__init__ {points faces self,
+        .# [[x0 x1 ..]
+        .#  [y0 y1 ..]
+        .#  [z0 z1 ..]]
+        points self.:points;
+
+        .# [[a0 b0 c0]...]
+        faces self.:faces;
+    }
+
+
+    def mesh::_copy_new_points {new_points self,
+        new_points self.faces self.M!
+    }
+
+
+    def mesh::get_center {self : obj_max obj_min,
+        self.points #.max :obj_max;
+        self.points #.min :obj_min;
+
+        obj_max obj_min + 2 /
+    }
+
+
+    def mesh::rescale {amount::num self,
+        amount self.points * self._copy_new_points
+    }
+
+
+    def mesh::rotate_x {theta self,
+        .# Compute rotation matrix
+        [[1  0         0            ]
+         [0  theta Mc  theta Ms -1 *]
+         [0  theta Ms  theta Mc     ]]
+
+        self.points la.dot self._copy_new_points
+    }
+
+
+    def mesh::rotate_y {theta self,
+        .# Compute rotation matrix
+        [[theta Mc  0  theta Ms -1 *]
+         [0         1  0            ]
+         [theta Ms  0  theta Mc     ]]
+
+        self.points la.dot self._copy_new_points
+    }
+
+
+    def mesh::rotate_z {theta self,
+        .# Compute rotation matrix
+        [[theta Mc  theta Ms -1 *  0]
+         [theta Ms  theta Mc       0]
+         [0         0              1]]
+
+        self.points la.dot self._copy_new_points
+    }
+
+
+    def mesh::project {self, .# -> [[x0 x1 ...] [y0 y1 ...]]
+        .# 2D projection matrix
+        [[1 0 0]
+         [0 1 0]]
+
+        self.points la.dot
+    }
+
+
+    def mesh::face_points {projected_points faces cls,
+        .# Lookup 2D face points
+        .# Return a list of 2d triangles (shape [2 3])
+        .# [
+        .#   (face 1 triangle)
+        .#   [[p00 p01]
+        .#    [p10 p11]
+        .#    [p20 p21]]
+        .#
+        .#   (face N triangle)
+        .#   ...
+        .# ]
+        faces { {i, projected_points {iI} O } O } O
+    }

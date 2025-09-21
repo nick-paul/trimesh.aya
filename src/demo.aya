@@ -1,9 +1,3 @@
-.# 3D Projected Cube
-.#
-.# Implementation of Coding Challenge #112 by The Coding Train
-.# https://thecodingtrain.com/
-
-
 import canvas
 require color {colors}
 import time

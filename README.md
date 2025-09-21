@@ -27,10 +27,5 @@ aya> "trimesh" pkg.run
 
 ![](bunny.gif)
 
-## API
-
-
-
-
 
 

@@ -15,7 +15,6 @@ Or, from within aya directly:
 ```
 aya> import pkg
 aya> "nick-paul/trimesh.aya" pkg.add
-
 ```
 
 ## Demo
